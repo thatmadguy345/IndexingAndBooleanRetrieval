@@ -84,9 +84,11 @@ def save_index(inverted_index, index_dir: str) -> None:
     for term in sorted(inverted_index.keys()):
         sorted_postings = {}
         for doc_id in sorted(inverted_index[term].keys()):
-            # Positions are already sorted by construction
-            sorted_postings[doc_id] = inverted_index[term][doc_id]
+            positions = inverted_index[term][doc_id]
+            positions.sort()
+            sorted_postings[doc_id] = positions
         sorted_index[term] = sorted_postings
+        
         
     index_path = os.path.join(index_dir, 'index.json')
     with open(index_path, 'w', encoding='utf-8') as f:
@@ -140,7 +142,13 @@ def compress_index(inverted_index, all_doc_ids, compressed_dir: str) -> None:
             f.write(encoded_postings)
             
             term_length = len(encoded_postings)
-            lexicon[term] = {'offset': current_offset, 'size': term_length, 'doc_count': len(postings)}
+            position_counts = [len(postings[int_to_doc_id_map[doc_id]]) for doc_id in int_doc_ids]
+            lexicon[term] = {
+                'offset': current_offset, 
+                'size': term_length,
+                'doc_count': len(postings),
+                'pos_counts': position_counts # Add the list of position counts
+            }
             current_offset += term_length
             
     # Save metadata

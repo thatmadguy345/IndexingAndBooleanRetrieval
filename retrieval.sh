@@ -1,4 +1,4 @@
-#!/bin-bash
+#!/bin/bash
 # retrieval.sh
 # Executes the boolean retrieval script.
 
